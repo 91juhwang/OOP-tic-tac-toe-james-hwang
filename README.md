@@ -16,6 +16,7 @@ To create a terminal interfaced tic-tac-toe game, which the board size is chosen
 * Allowing user to choose who becomes `O` or `X`.
 * Winner announcement and a choice to play again or quit.
 * Variable Grid Size (User can choose how big the board is.)
+* Randomly choosing who starts the game first.
 
 ## Win Detection Algorithm
 
