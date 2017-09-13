@@ -10,7 +10,7 @@ To create a terminal interfaced tic-tac-toe game, which the board size is chosen
 2. `bundle install`
 3. run `ruby bin/tic-tac-toe` to play
 
-## Included Core Features
+## Included Features
 
 * Playable tic-tac-toe game against computer.
 * Allowing user to choose who becomes `O` or `X`.
@@ -23,7 +23,7 @@ To create a terminal interfaced tic-tac-toe game, which the board size is chosen
 Because the grid size of the game is variable, it is not possible to hard code the entire winning results of both computer and the player.
 
 Therefore, we need to keep track of how many `O` or `X` has been placed in each row and column.
-I have created 2-dimensional arrays to separate and easily keep track of the moves.
+I have created 2-dimensional arrays to separate and easily keep track of each moves.
 
 For example, in typical 3 x 3 tic-tac-toe game, the board looks like this.
 ```
@@ -41,13 +41,15 @@ With the above setup, we can have a score tracker that is the same length as the
 Then, with every coordinate that is given by the player, we can take the first index of the coordinate to update our `row_stats` to keep track of the moves.
 > player gives the coordinate [0,1]
 
-> update the stats as > `row_stats = [1, 0, 0]` and > `column_stats = [0, 1, 0]`
+> update the stats as -> `row_stats = [1, 0, 0]` and `column_stats = [0, 1, 0]`
 
-When the stats are equal to the `board.length`, we know that the row or the column has been fully filled by the player, which he or she would be the winner.
+When the stats are equal to the `board.length`, we know that the row or the column has been fully filled by the player, which he or she should be the winner.
 
-For the diagonal winning detection, there could be only 1 possible outcome for each diagonal and inverse-diagonal.
-For diagonal:
-With every move, if x-coordinate and y-coordinate value is same, then we increment the diagonal value since diagonal can only be reached same coordinates.
+Also, there could be only 1 possible outcome for each diagonal and inverse-diagonal.
+
+For diagonal wins:
+
+With every move, if x-coordinate and y-coordinate value is same, then we increment the diagonal value since diagonal wins can only be achieved by the same coordinates.
 > `diagonal_stats = 0`
 
 > player gives [0,0]
@@ -56,13 +58,13 @@ With every move, if x-coordinate and y-coordinate value is same, then we increme
 
 When the stats is equal to the `board.length`, we have the winner by the diagonal.
 
-For inverse-diagonal:
+For inverse-diagonal wins:
 
-With every move, if x-coordinate and y-coordinate's total is equal to `board.length`, then we increment the inverse-diagonal value since inverse-diagonal points are always equal to the board.length.
+With every move, if x-coordinate and y-coordinate's total is equal to `board.length`, then we increment the inverse-diagonal value since inverse-diagonal points are always equal to the `board.length`.
 > `inverse_diagonal_stats = 0`
 
 > player gives [0,2]
 
 > 0 + 2 + 1 = 3
 
-> update diagonal_stats to `diagonal_stats = 1`
+> update diagonal_stats to `inverse_diagonal_stats = 1`
