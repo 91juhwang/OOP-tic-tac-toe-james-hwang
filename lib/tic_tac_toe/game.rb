@@ -4,7 +4,7 @@ module TicTacToe
 
     def initialize(args)
       # intialize the game
-      @player_turn = true
+      @player_turn = [true, false].sample
       @board = args[:board]
       @player = args[:player]
       board.create_board
