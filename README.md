@@ -9,7 +9,6 @@ To create a terminal interfaced tic-tac-toe game, which the board size is chosen
 1. Clone the repository
 2. `bundle install`
 3. run `ruby bin/tic-tac-toe` to play
-4. run `rspec` for tests
 
 ## Included Core Features
 
