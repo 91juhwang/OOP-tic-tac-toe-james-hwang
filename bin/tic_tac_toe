@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+require_relative '../lib/tic_tac_toe'
+
+spec = Gem::Specification::load("tic_tac_toe.gemspec")
+puts "Version #{spec.version.to_s} - BeenVerified Code Challenge! :) "
+
+tic_tac_toe = TicTacToe::TicTacToe.new
