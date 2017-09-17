@@ -1,169 +1,74 @@
 module TicTacToe
   class Game
-    attr_accessor :board, :player, :coordinates
+    attr_accessor :board, :human, :computer, :turn
 
-    def initialize(args)
-      # intialize the game
-      @player_turn = [true, false].sample
-      @board = args[:board]
-      @player = args[:player]
+    def initialize
+      @board = Board.new
       board.create_board
-      # player scores
-      @player_row_stats = Array.new(board.length, 0)
-      @player_column_stats = Array.new(board.length, 0)
-      @player_diag_stats = 0
-      @player_inverse_diag_stats = 0
-      # computer scores
-      @computer_row_stats = Array.new(board.length, 0)
-      @computer_column_stats = Array.new(board.length, 0)
-      @computer_diag_stats = 0
-      @computer_inverse_diag_stats = 0
-      @coordinates = []
+      @human = Human.new(board: board)
+      @computer = Computer.new(board: board, other_horse: human.player_info[:horse])
+      @turn = [human.player_info, computer.player_info].sample
     end
 
-    # core game plays
     def play
-      unless game_has_ended?(coordinates)
-        board.print_board
-        @coordinates = check_player_turn
-        user_coordinates = check_duplicate_location(coordinates)
-        if @player_turn
-          board.update_board(user_coordinates, player, @player_turn)
-          update_player_winning_board(user_coordinates)
-        else
-          board.update_board(coordinates, player, @player_turn)
-          update_computer_winning_board(coordinates)
-        end
-        @player_turn = !@player_turn
-        play
-      end
+      board.print_board
+      coordinates = retrieve_player_move
+      update_player_move(coordinates)
+      play unless game_has_ended?(coordinates)
       play_again?
     end
 
-    def check_player_turn
-      if player_turn?
-        ask_coordinates
+    def retrieve_player_move
+      if turn == human.player_info
+        human.check_duplicate_location(human.ask_coordinates)
       else
-        computer_play
+        computer.play
       end
     end
 
-    def player_turn?
-      @player_turn
-    end
-
-    def computer_play
-      puts ' ---- Computer Turn -----'
-      player.computer_random_coordinates
-    end
-
-    # keep track and update winning moves
-    def update_player_winning_board(coordinates)
-      @player_row_stats[coordinates[0]] += 1
-      @player_column_stats[coordinates[1]] += 1
-      @player_diag_stats += 1 if coordinates[0] == coordinates[1]
-      @player_inverse_diag_stats += 1 if coordinates.inject(&:+) + 1 == board.length
-    end
-
-    def update_computer_winning_board(coordinates)
-      @computer_row_stats[coordinates[0]] += 1
-      @computer_column_stats[coordinates[1]] += 1
-      @computer_diag_stats += 1 if coordinates[0] == coordinates[1]
-      @computer_inverse_diag_stats += 1 if coordinates.inject(&:+) + 1 == board.length
-    end
-
-    # checking duplicate coordinates and asking user to input correct values
-    # Would move below codes to new LocationTracker class if I had more time
-    def check_duplicate_location(location)
-      x = location[0]
-      y = location[1]
-      element = board.board_info[x][y]
-      if @player_turn && (element == 'O' || element == 'X')
-        puts 'ERROR: Horse already placed there!! Please enter different coordinates'
-        new_x = ask_x_coordinate
-        new_y = ask_y_coordinate
-        check_duplicate_location([new_x, new_y])
-      elsif @player_turn == false
-        @coordinates
+    def update_player_move(coordinates)
+      if turn == human.player_info
+        board.update_board(coordinates, human)
+        human.update_scores(coordinates)
+        @turn = computer.player_info
       else
-        @coordinates = [location[0], location[1]]
-      end
-    end
-
-    def ask_coordinates
-      puts '-----Your turn!! ------'
-      puts ' '
-      x = ask_x_coordinate
-      y = ask_y_coordinate
-      [x, y]
-    end
-
-    def ask_x_coordinate
-      puts 'Row: Please enter the x-position for your play. (row)'
-      puts '* Ex) Entering 0 would be the first row, 1 = second row etc..'
-      x = user_coordinate
-      return check_x_coordinate(x)
-    end
-
-    def ask_y_coordinate
-      puts 'Column: Please enter the y-position for your play. (column)'
-      puts '* Ex) Entering 0 would be the first column, 1 = second column etc..'
-      y = user_coordinate
-      return check_y_coordinate(y)
-    end
-
-    def user_coordinate
-      Integer(gets)
-    rescue ArgumentError
-      puts 'ERROR: Please enter an integer.'
-      user_coordinate
-    end
-
-    def check_x_coordinate(x)
-      if x >= board.length || x < 0
-        puts 'ERROR: Please provide valid coordinates for the board'
-        ask_x_coordinate
-      else
-        x
-      end
-    end
-
-    def check_y_coordinate(y)
-      if y >= board.length || y < 0
-        puts 'ERROR: Please provide valid coordinates for the board'
-        ask_y_coordinate
-      else
-        y
+        board.update_board(coordinates, computer)
+        computer.update_scores(coordinates)
+        @turn = human.player_info
       end
     end
 
     # checking if the game ended by deteceting the winner
     def game_has_ended?(coordinates)
       return false if coordinates.length != 2
-      return display_winner('player') if @player_row_stats[coordinates[0]] == board.length
-      return display_winner('player') if @player_column_stats[coordinates[1]] == board.length
-      return display_winner('player') if @player_diag_stats == board.length
-      return display_winner('player') if @player_inverse_diag_stats == board.length
-
-      return display_winner('computer') if @computer_row_stats[coordinates[0]] == board.length
-      return display_winner('computer') if @computer_column_stats[coordinates[1]] == board.length
-      return display_winner('computer') if @computer_diag_stats == board.length
-      return display_winner('computer') if @computer_inverse_diag_stats == board.length
-      return display_winner('draw') if !board.board_info.flatten.include? '.'
+      return display_winner(human) if human_win_scenarios(coordinates)
+      return display_winner(computer) if computer_win_scenarios(coordinates)
+      return display_winner('draw') unless board.board_info.flatten.include? '.'
       false
     end
 
+    def human_win_scenarios(coordinates)
+      return true if human.scores[:row_stats][coordinates[0]] == board.length
+      return true if human.scores[:column_stats][coordinates[1]] == board.length
+      return true if human.scores[:diag_stats] == board.length
+      return true if human.scores[:inverse_diag_stats] == board.length
+    end
+
+    def computer_win_scenarios(coordinates)
+      return true if computer.scores[:row_stats][coordinates[0]] == board.length
+      return true if computer.scores[:column_stats][coordinates[1]] == board.length
+      return true if computer.scores[:diag_stats] == board.length
+      return true if computer.scores[:inverse_diag_stats] == board.length
+    end
+
     # Win & ending methods
-    def display_winner(who_wins)
+    def display_winner(player)
       board.print_board
-      if who_wins == 'draw'
-        puts "----DRAW GAME---"
-      elsif who_wins == 'player'
-        puts '--------WINNER--------'
-        puts "#{player.player[:player_name]} - #{player.player[:horse]} has won the game!"
+      if player == 'draw'
+        puts '----DRAW GAME---'
       else
         puts '--------WINNER--------'
-        puts "#{player.computer[:player_name]} - '#{player.computer[:horse]}' has won the game!"
+        puts "#{player.player_info[:name]} - '#{player.player_info[:horse]}' has won the game!"
       end
       true
     end

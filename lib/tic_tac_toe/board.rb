@@ -13,24 +13,8 @@ module TicTacToe
       create_board_arrays(board_number)
     end
 
-    def create_board_arrays(board_number)
-      board_number.times do
-        board << Array.new(board_number, '.')
-      end
-      board
-    end
-
-    def check_valid_board_number(input)
-      create_board unless input > 0
-    end
-
-    def print_board
-      puts '*******BOARD**********'
-      board.each do |arry|
-        puts arry.join(' ')
-        puts "#{"--" * board.length}"
-      end
-      puts '**********************'
+    def update_board(coordinates, player)
+      board_info[coordinates[0]][coordinates[1]] = player.player_info[:horse]
     end
 
     def length
@@ -41,12 +25,26 @@ module TicTacToe
       board
     end
 
-    def update_board(coordinates, player, player_turn)
-      if player_turn
-        board_info[coordinates[0]][coordinates[1]] = player.player_horse
-      else
-        board_info[coordinates[0]][coordinates[1]] = player.computer_horse
+    def print_board
+      puts '*******BOARD**********'
+      board.each do |arry|
+        puts arry.join(' ')
+        puts '--' * board.length
       end
+      puts '**********************'
+    end
+
+    private
+
+    def create_board_arrays(board_number)
+      board_number.times do
+        board << Array.new(board_number, '.')
+      end
+      board
+    end
+
+    def check_valid_board_number(input)
+      create_board unless input > 0
     end
   end
 end
