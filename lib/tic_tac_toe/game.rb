@@ -28,14 +28,17 @@ module TicTacToe
 
     def update_player_move(coordinates)
       if turn == human.player_info
-        board.update_board(coordinates, human)
-        human.update_scores(coordinates)
+        update_player_stats(human, coordinates)
         @turn = computer.player_info
       else
-        board.update_board(coordinates, computer)
-        computer.update_scores(coordinates)
+        update_player_stats(computer, coordinates)
         @turn = human.player_info
       end
+    end
+
+    def update_player_stats(player, coordinates)
+      board.update_board(coordinates, player)
+      player.update_scores(coordinates)
     end
 
     # checking if the game ended by deteceting the winner
