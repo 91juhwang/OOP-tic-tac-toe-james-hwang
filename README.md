@@ -2,7 +2,7 @@
 
 ## Challenge
 
-To create a terminal interfaced tic-tac-toe game, which the board size is chosen by the user and the winning pattern is not hard coded.
+To create an Object Oriented Tic-Tac-Toe game, where the board size is chosen by the user and the winning pattern is NOT hard coded. 
 
 ## Install & Run
 
